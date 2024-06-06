@@ -2,7 +2,6 @@
   hosts: tomcat_servers
   become: true
   become_method: sudo
-  become_user: root
   tasks:
     - name: Install Java
       ansible.builtin.apt:
