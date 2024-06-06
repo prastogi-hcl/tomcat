@@ -18,11 +18,11 @@
         group: tomcat
         home: /user/share/tomcat
         createhome: no
-    - name: create /opt/tomcat directory
-      file:
-        path: /opt/tomcat
-        state: directory
-        mode: 0755
+   # - name: create /opt/tomcat directory
+   #   file:
+   #     path: /opt/tomcat
+   #     state: directory
+   #      mode: 0755
         
     - name: Download Tomcat
       get_url:
