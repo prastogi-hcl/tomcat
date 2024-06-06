@@ -1,7 +1,7 @@
 - name: Install Tomcat
   hosts: tomcat_servers
   become: true
-  ansible_user: root
+  become_user: root
   tasks:
     - name: Install Java
       ansible.builtin.apt:
