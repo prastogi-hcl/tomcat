@@ -1,7 +1,6 @@
 - name: Install Tomcat
   hosts: tomcat_servers
   become: true
-  become_user: semaphore
   become_method: sudo
   tasks:
     - name: Install Java
