@@ -23,6 +23,7 @@
        path: /opt/tomcat
        state: directory
        mode: 0755
+       become: yes
          
     - name: Download Tomcat
       get_url:
