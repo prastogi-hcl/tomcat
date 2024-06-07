@@ -1,7 +1,6 @@
 - name: Install Tomcat
   hosts: tomcat_servers
   become: true
-  become_method: sudo
   tasks:
     - name: Install Java
       ansible.builtin.apt:
@@ -23,7 +22,6 @@
        path: /opt/tomcat
        state: directory
        mode: 0755
-      become: yes
          
     - name: Download Tomcat
       get_url:
