@@ -2,10 +2,10 @@
   hosts: appservers
   become: true
   tasks:
-    - name: Install Java
-      ansible.builtin.dnf:
-        name: openjdk-18-jre-headless
-        state: present
+  #  - name: Install Java
+  #    ansible.builtin.dnf:
+  #      name: openjdk-18-jre-headless
+  #      state: present
 
     - name: add tomcat group
       group:
