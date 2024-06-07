@@ -1,5 +1,5 @@
 - name: Install Tomcat
-  hosts: tomcat_servers
+  hosts: appservers
   become: true
   tasks:
     - name: Install Java
