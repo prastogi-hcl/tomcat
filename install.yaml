@@ -42,4 +42,4 @@
         recurse: yes
         state: directory
     - name: Start Tomcat Service
-      shell: /opt/tomcat/apache-tomcat-9.0.54/bin/catalina.sh start
+      shell: "nohup sh /opt/tomcat/apache-tomcat-9.0.54/bin/catalina.sh start 2>&1 &"
