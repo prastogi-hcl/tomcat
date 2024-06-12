@@ -1,0 +1,27 @@
+- name: Change Tomcat port number
+  hosts: appservers
+  become: yes
+  vars:
+    tomcat_home: /opt/tomcat/apache-tomcat-9.0.54
+    old_port: 8080
+    new_port: 9090
+  tasks:
+    - name: Ensure Tomcat is stopped
+      shell: "sh {{ tomcat_home }}/bin/catalina.sh stop"
+
+    - name: Backup server.xml
+      copy:
+        src: "{{ tomcat_home }}/conf/server.xml"
+        dest: "{{ tomcat_home }}/conf/server.xml.bak"
+        backup: yes
+        remote_src: yes
+
+    - name: Change Tomcat port number
+      lineinfile:
+        path: "{{ tomcat_home }}/conf/server.xml"
+        regexp: '<Connector port="{{ old_port }}"'
+        line: '<Connector port="{{ new_port }}"'
+        backrefs: yes
+
+    - name: Ensure Tomcat is started
+      shell: "nohup sh {{ tomcat_home }}/bin/catalina.sh start 2>&1 &"
