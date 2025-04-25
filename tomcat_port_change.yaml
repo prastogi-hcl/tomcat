@@ -1,5 +1,5 @@
 - name: Change Tomcat port number
-  hosts: jboss-servers
+  hosts: server
   become: yes
   vars:
     tomcat_home: /opt/tomcat/apache-tomcat-9.0.54
