@@ -76,7 +76,7 @@
       recurse: yes
       
   - name: Rename New Tomcat Directory to OLD tomcat directory
-    command: mv /opt/apache-tomcat-9.0.54.tar.gz /opt/tomcat    
+    command: mv /opt/apache-tomcat-10.1.52 /opt/tomcat    
 
   - name: Start Tomcat
     shell: sudo -u tomcat {{ tomcat_new_home }}/bin/startup.sh 
