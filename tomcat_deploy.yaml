@@ -23,6 +23,7 @@
         src: "{{ war_file }}"
         dest: "{{ tomcat_webapps }}/"
         mode: '0644'
+        remote_src: True
 
     - name: Start Tomcat
       shell: /opt/tomcat/apache-tomcat-9.0.54/bin/startup.sh
