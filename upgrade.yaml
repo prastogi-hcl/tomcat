@@ -1,0 +1,105 @@
+--
+- name: Upgrade Apache Tomcat
+  hosts: server
+  become: yes
+
+  vars:
+    tomcat_version: "10.1.52"
+    tomcat_major: "10"
+    tomcat_user: tomcat
+    tomcat_group: tomcat
+
+    tomcat_install_dir: /opt
+    tomcat_home: "/opt/tomcat"
+    tomcat_new_home: "/opt/apache-tomcat-{{ tomcat_version }}"
+    tomcat_backup_dir: /opt/tomcat-backup
+
+    tomcat_tarball: "/tmp/apache-tomcat-{{ tomcat_version }}.tar.gz"
+    tomcat_download_url: "https://dlcdn.apache.org/tomcat/tomcat-{{ tomcat_major }}/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz"
+
+    tomcat_logs: "{{ tomcat_home }}/logs/catalina.out"
+    sleep_interval: 60
+
+  tasks:
+
+  - name: Ensure backup directory exists
+    file:
+      path: "{{ tomcat_backup_dir }}"
+      state: directory
+
+  - name: Backup existing Tomcat
+    command: >
+      tar czf {{ tomcat_backup_dir }}/tomcat-backup-{{ ansible_date_time.iso8601 }}.tar.gz
+      -C {{ tomcat_install_dir }} tomcat
+    args:
+      creates: "{{ tomcat_backup_dir }}/tomcat-backup-{{ ansible_date_time.iso8601 }}.tar.gz"
+
+  - name: Get Tomcat version before upgrade
+    shell: "{{ tomcat_home }}/bin/version.sh"
+    register: tomcat_version_before
+
+  - name: Display Tomcat version before upgrade
+    debug:
+      msg: "{{ tomcat_version_before.stdout }}"
+
+  - name: Stop Tomcat
+    shell: sudo -u tomcat {{ tomcat_home }}/bin/shutdown.sh
+    ignore_errors: yes
+
+  - name: Check if Tomcat stopped
+    shell: ps -ef | grep tomcat | grep -v grep
+    register: tomcat_process_check
+    failed_when: tomcat_process_check.stdout != ""
+
+  - name: Download Tomcat tarball
+    get_url:
+      url: "{{ tomcat_download_url }}"
+      dest: "{{ tomcat_tarball }}"
+      mode: '0644'
+
+  - name: Extract Tomcat
+    unarchive:
+      src: "{{ tomcat_tarball }}"
+      dest: "{{ tomcat_install_dir }}"
+      remote_src: yes
+
+  - name: Copy configuration from old Tomcat
+    copy:
+      src: "{{ tomcat_home }}/conf/"
+      dest: "{{ tomcat_new_home }}/conf/"
+      remote_src: yes
+
+  - name: Create symlink for Tomcat
+    file:
+      src: "{{ tomcat_new_home }}"
+      dest: "{{ tomcat_home }}"
+      state: link
+      force: yes
+
+  - name: Set ownership on Tomcat directory
+    file:
+      path: "{{ tomcat_new_home }}"
+      owner: "{{ tomcat_user }}"
+      group: "{{ tomcat_group }}"
+      recurse: yes
+
+  - name: Start Tomcat
+    shell: sudo -u tomcat {{ tomcat_home }}/bin/startup.sh 
+    
+
+  - name: Wait for Tomcat to start
+    pause:
+      seconds: "{{ sleep_interval }}"
+
+  - name: Check Tomcat logs for errors
+    shell: "grep -i ERROR {{ tomcat_logs }}"
+    register: tomcat_log_check
+    failed_when: tomcat_log_check.stdout != ""
+
+  - name: Get Tomcat version after upgrade
+    shell: "{{ tomcat_home }}/bin/version.sh"
+    register: tomcat_version_after
+
+  - name: Display Tomcat version after upgrade
+    debug:
+      msg: "{{ tomcat_version_after.stdout }}"
