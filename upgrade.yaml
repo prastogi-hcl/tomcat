@@ -13,55 +13,55 @@
 
     tasks:
 
-		 - name: Stop Tomcat
-		   shell: sudo -u tomcat /opt/tomcat/bin/shutdown.sh
+    - name: Stop Tomcat
+	  shell: sudo -u tomcat /opt/tomcat/bin/shutdown.sh
 		
 
-		 - name: Backup existing Tomcat
-			command: mv {{ tomcat_install_dir }} {{ backup_dir }}
-			args:
-			  creates: "{{ backup_dir }}"
+	- name: Backup existing Tomcat
+	  command: mv {{ tomcat_install_dir }} {{ backup_dir }}
+	  args:
+		 creates: "{{ backup_dir }}"
 
-		 - name: Download Tomcat 10
-			get_url:
-			  url: "{{ tomcat_download_url }}"
-			  dest: "/tmp/apache-tomcat-{{ tomcat_new_version }}.tar.gz"
+	 - name: Download Tomcat 10
+	   get_url:
+		  url: "{{ tomcat_download_url }}"
+		  dest: "/tmp/apache-tomcat-{{ tomcat_new_version }}.tar.gz"
 
-		 - name: Create temporary Tomcat 10 directory
-			file:
-			  path: "{{ tomcat_temp_dir }}"
-			  state: directory
+	 - name: Create temporary Tomcat 10 directory
+	   file:
+		  path: "{{ tomcat_temp_dir }}"
+		  state: directory
 
-		 - name: Extract Tomcat 10
-			unarchive:
-			  src: "/tmp/apache-tomcat-{{ tomcat_new_version }}.tar.gz"
-			  dest: "{{ tomcat_temp_dir }}"
-			  remote_src: yes
-			  extra_opts: [--strip-components=1]
+	 - name: Extract Tomcat 10
+	   unarchive:
+		  src: "/tmp/apache-tomcat-{{ tomcat_new_version }}.tar.gz"
+		  dest: "{{ tomcat_temp_dir }}"
+		  remote_src: yes
+		  extra_opts: [--strip-components=1]
 
-		 - name: Rename Tomcat 10 to /opt/tomcat
-			command: mv {{ tomcat_temp_dir }} {{ tomcat_install_dir }}
+	 - name: Rename Tomcat 10 to /opt/tomcat
+	   command: mv {{ tomcat_temp_dir }} {{ tomcat_install_dir }}
 
-		 - name: Set Tomcat ownership
-			file:
-			  path: "{{ tomcat_install_dir }}"
-			  owner: "{{ tomcat_user }}"
-			  group: "{{ tomcat_group }}"
-			  recurse: yes
-
-
-		  - name: Start Tomcat
-			shell: sudo -u tomcat {{ tomcat_install_dir }}/bin/startup.sh
-			become: yes
-
-		  - name: Wait for Tomcat to start
-			pause:
-			  seconds: "{{ sleep_interval }}"
+	 - name: Set Tomcat ownership
+	   file:
+		  path: "{{ tomcat_install_dir }}"
+		  owner: "{{ tomcat_user }}"
+		  group: "{{ tomcat_group }}"
+		  recurse: yes
 
 
-		  - name: Get Tomcat version after upgrade
-			shell: "{{   tomcat_install_dir }}/bin/version.sh"
-			register: tomcat_version_after
+	- name: Start Tomcat
+	  shell: sudo -u tomcat {{ tomcat_install_dir }}/bin/startup.sh
+	  become: yes
 
-		  - name: Display Tomcat version after upgrade
-			debug:
+	- name: Wait for Tomcat to start
+	  pause:
+		 seconds: "{{ sleep_interval }}"
+
+
+    - name: Get Tomcat version after upgrade
+      shell: "{{   tomcat_install_dir }}/bin/version.sh"
+		register: tomcat_version_after
+
+	- name: Display Tomcat version after upgrade
+	  debug:
