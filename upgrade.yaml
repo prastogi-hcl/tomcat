@@ -74,12 +74,12 @@
       owner: "{{ tomcat_user }}"
       group: "{{ tomcat_group }}"
       recurse: yes
+      
+  - name: Rename New Tomcat Directory to OLD tomcat directory
+    command: mv /opt/apache-tomcat-9.0.54.tar.gz /opt/tomcat    
 
   - name: Start Tomcat
     shell: sudo -u tomcat {{ tomcat_new_home }}/bin/startup.sh 
-
-  - name: Rename New Tomcat Directory to OLD tomcat directory
-    command: mv /opt/apache-tomcat-9.0.54.tar.gz /opt/tomcat    
 
   - name: Get Tomcat version after upgrade
     shell: "{{ tomcat_new_home }}/bin/version.sh"
