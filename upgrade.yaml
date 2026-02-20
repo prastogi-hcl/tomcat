@@ -75,10 +75,16 @@
       group: "{{ tomcat_group }}"
       recurse: yes
       
-  - name: Rename New Tomcat Directory to OLD tomcat directory
-    command: mv /opt/apache-tomcat-10.1.52 /opt/tomcat    
+  - name: Rename OLD tomcat directory
+    command: mv {{ tomcat_home }} {{ tomcat_home }}_old    
     args:
-      creates: /opt/tomcat
+      removes: "{{ tomcat_home }}"
+  
+      
+  - name: Rename New Tomcat Directory to OLD tomcat directory
+    command: mv {{ tomcat_new_home }} {{ tomcat_home }}    
+    args:
+      creates: "{{ tomcat_home }}"
 
   - name: Start Tomcat
     shell: sudo -u tomcat {{ tomcat_new_home }}/bin/startup.sh 
