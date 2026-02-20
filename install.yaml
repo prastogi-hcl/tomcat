@@ -81,6 +81,5 @@
         daemon_reload: yes
 
     - name: Start and Enable Tomcat
-      become: true
-      become_user: tomcat
-      shell: /opt/tomcat/bin/startup.sh
+      shell: sudo -u tomcat /opt/tomcat/bin/startup.sh
+      become: yes
