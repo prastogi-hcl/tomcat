@@ -8,10 +8,10 @@
 
   tasks:
 
-    - name: Install Java
-      ansible.builtin.dnf:
-        name: java-17-openjdk
-        state: present
+   # - name: Install Java
+    #  ansible.builtin.dnf:
+    #    name: java-17-openjdk
+    #    state: present
 
     - name: Create tomcat group
       group:
