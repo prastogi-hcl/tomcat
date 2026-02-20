@@ -4,7 +4,7 @@
   become: yes
 
   vars:
-    tomcat_webapps: /opt/tomcat/webapps
+    tomcat_webapps: /opt/tomcat/apache-tomcat-9.0.54/webapps
     war_file: /tmp/__calendar.war
 
   tasks:
