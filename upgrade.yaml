@@ -77,6 +77,8 @@
       
   - name: Rename New Tomcat Directory to OLD tomcat directory
     command: mv /opt/apache-tomcat-10.1.52 /opt/tomcat    
+    args:
+      creates: /opt/tomcat
 
   - name: Start Tomcat
     shell: sudo -u tomcat {{ tomcat_new_home }}/bin/startup.sh 
