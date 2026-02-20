@@ -81,7 +81,6 @@
         daemon_reload: yes
 
     - name: Start and Enable Tomcat
-      systemd:
-        name: tomcat
-        state: started
-        enabled: yes
+      become: true
+      become_user: tomcat
+      shell: /opt/tomcat/bin/startup.sh
