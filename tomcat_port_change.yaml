@@ -2,12 +2,12 @@
   hosts: server
   become: yes
   vars:
-    tomcat_home: /opt/tomcat/apache-tomcat-9.0.54
+    tomcat_home: /opt/tomcat
     old_port: 8080
     new_port: 9090
   tasks:
     - name: Ensure Tomcat is stopped
-      shell: "sh {{ tomcat_home }}/bin/catalina.sh stop"
+      shell: sudo -u tomcat  {{ tomcat_home }}/bin/shutdown.sh
 
     - name: Backup server.xml
       copy:
