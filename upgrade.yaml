@@ -15,6 +15,13 @@
     sleep_interval: 10
 
   tasks:
+    - name: Get Tomcat version before upgrade
+      ansible.builtin.shell: "{{ tomcat_install_dir }}/bin/version.sh"
+      register: tomcat_version_before
+
+    - name: Display Tomcat version before upgrade
+      ansible.builtin.debug:
+        msg: "{{ tomcat_version_before.stdout }}"
 
     - name: Stop Tomcat
     # run as tomcat user rather than calling sudo inside shell
@@ -60,20 +67,11 @@
       ansible.builtin.shell: "{{ tomcat_install_dir }}/bin/startup.sh"
       become_user: "{{ tomcat_user }}"
 
-    # Option A: simple pause (uses the defined sleep_interval)
+
     - name: Wait for Tomcat to start (simple pause)
       ansible.builtin.pause:
         seconds: "{{ sleep_interval }}"
 
-    # Option B (recommended): wait for the port to respond instead of blind sleep
-    # Uncomment and adjust host/port if needed, and optionally remove the pause task above.
-    # - name: Wait for Tomcat port 8080
-    #   ansible.builtin.wait_for:
-    #     host: "127.0.0.1"
-    #     port: 8080
-    #     delay: 2
-    #     timeout: 60
-    #   become: false
 
     - name: Get Tomcat version after upgrade
       ansible.builtin.shell: "{{ tomcat_install_dir }}/bin/version.sh"
