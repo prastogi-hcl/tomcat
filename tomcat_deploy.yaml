@@ -6,7 +6,9 @@
   vars:
     tomcat_webapps: /opt/tomcat/apache-tomcat-9.0.54/webapps
     war_file: /tmp/__calendar.war
-
+    tomcat_user: tomcat
+    tomcat_group: tomcat    
+    
   tasks:
 
     - name: Stop Tomcat
@@ -24,6 +26,8 @@
         dest: "{{ tomcat_webapps }}/"
         mode: '0644'
         remote_src: True
+        owner: "{{ tomcat_user }}"
+        group: "{{ tomcat_group }}"
 
     - name: Start Tomcat
       shell: /opt/tomcat/apache-tomcat-9.0.54/bin/startup.sh
