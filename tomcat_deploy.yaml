@@ -1,0 +1,28 @@
+---
+- name: Deploy Application to Tomcat
+  hosts: server
+  become: yes
+
+  vars:
+    tomcat_webapps: /opt/tomcat/webapps
+    war_file: /tmp/__calendar.war
+
+  tasks:
+
+    - name: Stop Tomcat
+      shell: /opt/tomcat/bin/shutdown.sh
+      ignore_errors: yes
+
+    - name: Remove old application
+      file:
+        path: "{{ tomcat_webapps }}/myapp"
+        state: absent
+
+    - name: Copy WAR file
+      copy:
+        src: "{{ war_file }}"
+        dest: "{{ tomcat_webapps }}/"
+        mode: '0644'
+
+    - name: Start Tomcat
+      shell: /opt/tomcat/bin/startup.sh
