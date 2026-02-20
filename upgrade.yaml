@@ -2,92 +2,56 @@
   hosts: server
   become: yes
 
-  vars:
-    tomcat_version: "10.1.52"
-    tomcat_major: "10"
+vars:
     tomcat_user: tomcat
     tomcat_group: tomcat
-
-    tomcat_install_dir: /opt
-    tomcat_home: "/opt/tomcat"
-    tomcat_new_home: "/opt/apache-tomcat-{{ tomcat_version }}"
-    tomcat_backup_dir: /opt/tomcat-backup
-
-    tomcat_tarball: "/tmp/apache-tomcat-{{ tomcat_version }}.tar.gz"
-    tomcat_download_url: "https://dlcdn.apache.org/tomcat/tomcat-{{ tomcat_major }}/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz"
-
-    tomcat_logs: "{{ tomcat_home }}/logs/catalina.out"
-    sleep_interval: 60
+    tomcat_install_dir: /opt/tomcat
+    tomcat_new_version: 10.0.27
+    tomcat_temp_dir: /opt/tomcat_10
+    backup_dir: "/opt/tomcat_9_backup_{{ ansible_date_time.date }}"
+    tomcat_download_url: "https://archive.apache.org/dist/tomcat/tomcat-10/v{{ tomcat_new_version }}/bin/apache-tomcat-{{ tomcat_new_version }}.tar.gz"
 
   tasks:
 
-  - name: Ensure backup directory exists
-    file:
-      path: "{{ tomcat_backup_dir }}"
-      state: directory
+  - name: Stop Tomcat
+    shell: sudo -u tomcat /opt/tomcat/bin/shutdown.sh
+    
 
   - name: Backup existing Tomcat
-    command: >
-      tar czf {{ tomcat_backup_dir }}/tomcat-backup-{{ ansible_date_time.iso8601 }}.tar.gz
-      -C {{ tomcat_install_dir }} tomcat
+    command: mv {{ tomcat_install_dir }} {{ backup_dir }}
     args:
-      creates: "{{ tomcat_backup_dir }}/tomcat-backup-{{ ansible_date_time.iso8601 }}.tar.gz"
+      creates: "{{ backup_dir }}"
 
-  - name: Get Tomcat version before upgrade
-    shell: "{{ tomcat_home }}/bin/version.sh"
-    register: tomcat_version_before
-
-  - name: Display Tomcat version before upgrade
-    debug:
-      msg: "{{ tomcat_version_before.stdout }}"
-
-  - name: Stop Tomcat
-    shell: sudo -u tomcat {{ tomcat_home }}/bin/shutdown.sh
-    ignore_errors: yes
-
-  - name: Check if Tomcat stopped
-    shell: ps -ef | grep tomcat | grep -v grep
-    register: tomcat_process_check
-    failed_when: tomcat_process_check.stdout != ""
-
-  - name: Download Tomcat tarball
+  - name: Download Tomcat 10
     get_url:
       url: "{{ tomcat_download_url }}"
-      dest: "{{ tomcat_tarball }}"
-      mode: '0644'
+      dest: "/tmp/apache-tomcat-{{ tomcat_new_version }}.tar.gz"
 
-  - name: Extract Tomcat
-    unarchive:
-      src: "{{ tomcat_tarball }}"
-      dest: "{{ tomcat_install_dir }}"
-      remote_src: yes
-
-  - name: Copy configuration from old Tomcat
-    copy:
-      src: "{{ tomcat_home }}/conf/"
-      dest: "{{ tomcat_new_home }}/conf/"
-      remote_src: yes
-
-  - name: Set ownership on Tomcat directory
+  - name: Create temporary Tomcat 10 directory
     file:
-      path: "{{ tomcat_new_home }}"
+      path: "{{ tomcat_temp_dir }}"
+      state: directory
+
+  - name: Extract Tomcat 10
+    unarchive:
+      src: "/tmp/apache-tomcat-{{ tomcat_new_version }}.tar.gz"
+      dest: "{{ tomcat_temp_dir }}"
+      remote_src: yes
+      extra_opts: [--strip-components=1]
+
+  - name: Rename Tomcat 10 to /opt/tomcat
+    command: mv {{ tomcat_temp_dir }} {{ tomcat_install_dir }}
+
+  - name: Set Tomcat ownership
+    file:
+      path: "{{ tomcat_install_dir }}"
       owner: "{{ tomcat_user }}"
       group: "{{ tomcat_group }}"
       recurse: yes
-      
-#  - name: Rename OLD tomcat directory
-#    command: mv {{ tomcat_home }} {{ tomcat_home }}_old    
-#    args:
-#      removes: "{{ tomcat_home }}"
-  
-      
-#  - name: Rename New Tomcat Directory to OLD tomcat directory
-#    command: mv {{ tomcat_new_home }} {{ tomcat_home }}    
-#    args:
-#      creates: "{{ tomcat_home }}"
+
 
   - name: Start Tomcat
-    shell: sudo -u tomcat {{ tomcat_new_home }}/bin/startup.sh
+    shell: sudo -u tomcat {{ tomcat_install_dir }}/bin/startup.sh
     become: yes
 
   - name: Wait for Tomcat to start
@@ -96,7 +60,7 @@
 
 
   - name: Get Tomcat version after upgrade
-    shell: "{{ tomcat_new_home }}/bin/version.sh"
+    shell: "{{   tomcat_install_dir }}/bin/version.sh"
     register: tomcat_version_after
 
   - name: Display Tomcat version after upgrade
