@@ -24,4 +24,5 @@
         backrefs: yes
 
     - name: Ensure Tomcat is started
-      shell: "nohup sh {{ tomcat_home }}/bin/catalina.sh start 2>&1 &"
+      #shell: "nohup sh {{ tomcat_home }}/bin/catalina.sh start 2>&1 &"
+      shell: sudo -u tomcat /opt/tomcat/bin/startup.sh
