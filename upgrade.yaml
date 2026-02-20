@@ -75,19 +75,19 @@
       group: "{{ tomcat_group }}"
       recurse: yes
       
-  - name: Rename OLD tomcat directory
-    command: mv {{ tomcat_home }} {{ tomcat_home }}_old    
-    args:
-      removes: "{{ tomcat_home }}"
+#  - name: Rename OLD tomcat directory
+#    command: mv {{ tomcat_home }} {{ tomcat_home }}_old    
+#    args:
+#      removes: "{{ tomcat_home }}"
   
       
-  - name: Rename New Tomcat Directory to OLD tomcat directory
-    command: mv {{ tomcat_new_home }} {{ tomcat_home }}    
-    args:
-      creates: "{{ tomcat_home }}"
+#  - name: Rename New Tomcat Directory to OLD tomcat directory
+#    command: mv {{ tomcat_new_home }} {{ tomcat_home }}    
+#    args:
+#      creates: "{{ tomcat_home }}"
 
   - name: Start Tomcat
-    shell: sudo -u tomcat {{ tomcat_home }}/bin/startup.sh 
+    shell: sudo -u tomcat {{ tomcat_new_home }}/bin/startup.sh 
 
   - name: Wait for Tomcat to start
     pause:
@@ -95,7 +95,7 @@
 
 
   - name: Get Tomcat version after upgrade
-    shell: "{{ tomcat_home }}/bin/version.sh"
+    shell: "{{ tomcat_new_home }}/bin/version.sh"
     register: tomcat_version_after
 
   - name: Display Tomcat version after upgrade
