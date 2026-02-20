@@ -64,8 +64,8 @@
         state: directory
 
     - name: Start Tomcat
-      ansible.builtin.shell: "{{ tomcat_install_dir }}/bin/startup.sh"
-      become_user: "{{ tomcat_user }}"
+      shell: sudo -u tomcat {{ tomcat_install_dir }}/bin/startup.sh
+      become: yes
 
 
     - name: Wait for Tomcat to start (simple pause)
