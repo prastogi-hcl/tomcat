@@ -42,4 +42,6 @@
         recurse: yes
         state: directory
     - name: Start Tomcat Service
+      become: true
+      become_user: tomcat
       shell: "nohup sh /opt/tomcat/apache-tomcat-9.0.54/bin/catalina.sh start 2>&1 &"
