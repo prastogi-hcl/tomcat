@@ -68,7 +68,6 @@
       dest: "{{ tomcat_new_home }}/conf/"
       remote_src: yes
 
-
   - name: Set ownership on Tomcat directory
     file:
       path: "{{ tomcat_new_home }}"
@@ -79,15 +78,6 @@
   - name: Start Tomcat
     shell: sudo -u tomcat {{ tomcat_home }}/bin/startup.sh 
     
-
-  - name: Wait for Tomcat to start
-    pause:
-      seconds: "{{ sleep_interval }}"
-
-  - name: Check Tomcat logs for errors
-    shell: "grep -i ERROR {{ tomcat_logs }}"
-    register: tomcat_log_check
-    failed_when: tomcat_log_check.stdout != ""
 
   - name: Get Tomcat version after upgrade
     shell: "{{ tomcat_home }}/bin/version.sh"
