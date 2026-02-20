@@ -68,12 +68,6 @@
       dest: "{{ tomcat_new_home }}/conf/"
       remote_src: yes
 
-  - name: Create symlink for Tomcat
-    file:
-      src: "{{ tomcat_new_home }}"
-      dest: "{{ tomcat_home }}"
-      state: link
-      force: yes
 
   - name: Set ownership on Tomcat directory
     file:
